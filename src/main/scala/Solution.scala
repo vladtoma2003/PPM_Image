@@ -14,12 +14,12 @@ object Solution {
     println(inaltime)
     val pixels = noType.drop(makeString(noType).length + makeString(noType.drop(makeString(noType)
       .length + 1)).length + 2 + 4)
-    val charList = pixels.foldLeft(Nil:List[List[Char]])((acc, c) =>  {
-      acc match {
-        case Nil =>  if(c == ' ' || c == '\n') Nil else List(List(c))
-        case x :: xs => if(c == ' ' || c == '\n') acc :: Nil else (c :: x) :: xs
-      }
-    })
+//    val charList = pixels.foldLeft(Nil:List[List[Char]])((acc, c) =>  {
+//      acc match {
+//        case Nil =>  if(c == ' ' || c == '\n') Nil else List(List(c))
+//        case x :: xs => if(c == ' ' || c == '\n') acc :: Nil else (c :: x) :: xs
+//      }
+//    })
   }
 
   def makeString(l: List[Char]): String = {
