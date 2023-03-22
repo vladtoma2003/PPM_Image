@@ -6,36 +6,76 @@ object Solution {
   type GrayscaleImage = List[List[Double]]
 
   // prerequisites
-  def fromStringPPM(image: List[Char]): Unit = {
+  def fromStringPPM(image: List[Char]): Image = {
     val noType = image.drop(3)
     val lungime = makeString(noType).toInt
-    println(lungime)
+    //    println(lungime)
     val inaltime = makeString(noType.drop(makeString(noType).length + 1)).toInt
-    println(inaltime)
+    //    println(inaltime)
     val pixels = noType.drop(makeString(noType).length + makeString(noType.drop(makeString(noType)
       .length + 1)).length + 2 + 4)
-//    val charList = pixels.foldLeft(Nil:List[List[Char]])((acc, c) =>  {
-//      acc match {
-//        case Nil =>  if(c == ' ' || c == '\n') Nil else List(List(c))
-//        case x :: xs => if(c == ' ' || c == '\n') acc :: Nil else (c :: x) :: xs
-//      }
-//    })
+    val groupedPixels = split('\n')(pixels).flatMap(split(' '))
+      .map(_.foldRight(Nil: List[Char])((c, acc) => c :: acc).mkString).grouped(3).toList
+    //    println(groupedPixels)
+
+    def loop(l: List[List[String]], acc: Int): List[Pixel] = {
+      if (acc == 0) Nil
+      else makePixel(l.head) :: loop(l.tail, acc - 1)
+    }
+
+    val pixelList = loop(groupedPixels, groupedPixels.length)
+    //    println(pixelList.grouped(lungime).toList)
+    pixelList.grouped(lungime).toList
+  }
+
+  def makePixel(l: List[String]): Pixel = {
+    Pixel(l.head.toInt, l.tail.head.toInt, l.drop(2).head.toInt)
+  }
+
+  def split(d: Char)(s: List[Char]): List[List[Char]] = {
+    def op(c: Char, acc: List[List[Char]]): List[List[Char]] = {
+      acc match {
+        case Nil => if (c == d) Nil else List(List(c))
+        case x :: xs => if (c == d) Nil :: acc else (c :: x) :: xs
+      }
+    }
+
+    s.foldRight(Nil: List[List[Char]])(op)
   }
 
   def makeString(l: List[Char]): String = {
     if (l.head == ' ' || l.head == '\n') "" else l.head + makeString(l.tail)
   }
 
-  def toStringPPM(image: Image): List[Char] = ???
+  def toStringPPM(image: Image): List[Char] = {
+    ("P3\n" + image.head.length + ' ' + image.length + '\n' + "255\n" + image.flatten
+      .foldRight("")((c, acc) => (c.red.toString + ' ' + c.green.toString + ' ' + c.blue
+        .toString +
+        '\n') +
+        acc)
+      .toString).toList
+  }
 
   // ex 1
-  def verticalConcat(image1: Image, image2: Image): Image = ???
+  def verticalConcat(image1: Image, image2: Image): Image = image1 ++ image2
 
   // ex 2
-  def horizontalConcat(image1: Image, image2: Image): Image = ???
+  def horizontalConcat(image1: Image, image2: Image): Image = image1
+    .zip(image2).map { case (a, b) => a ++ b }
 
   // ex 3
-  def rotate(image: Image, degrees: Integer): Image = ???
+
+  def rotate(image: Image, degrees: Integer): Image = {
+    def transpose(i: Image): Image = { // transpunerea unei matrici data la curs
+      i match {
+        case Nil :: _ => Nil
+        case _ => i.map(_.head) :: transpose(i.map(_.tail))
+      }
+    }
+
+    if (degrees == 0) image
+    else rotate(transpose(image).reverse, degrees - 90)
+  }
 
   // ex 4
   val gaussianBlurKernel: GrayscaleImage = List[List[Double]](
