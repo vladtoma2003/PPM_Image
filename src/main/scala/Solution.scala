@@ -50,10 +50,7 @@ object Solution {
   def toStringPPM(image: Image): List[Char] = {
     ("P3\n" + image.head.length + ' ' + image.length + '\n' + "255\n" + image.flatten
       .foldRight("")((c, acc) => (c.red.toString + ' ' + c.green.toString + ' ' + c.blue
-        .toString +
-        '\n') +
-        acc)
-      .toString).toList
+        .toString +'\n') +acc).toString).toList
   }
 
   // ex 1
@@ -100,6 +97,7 @@ object Solution {
 
   def edgeDetection(image: Image, threshold: Double): Image = ???
 
+// convolutie: fac perechi cu zip, inmultesc perechile si le adun
   def applyConvolution(image: GrayscaleImage, kernel: GrayscaleImage): GrayscaleImage = ???
 
   // ex 5
