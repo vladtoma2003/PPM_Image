@@ -10,14 +10,11 @@ object Solution {
   def fromStringPPM(image: List[Char]): Image = {
     val noType = image.drop(3)
     val lungime = makeString(noType).toInt
-    //    println(lungime)
     val inaltime = makeString(noType.drop(makeString(noType).length + 1)).toInt
-    //    println(inaltime)
     val pixels = noType.drop(makeString(noType).length + makeString(noType.drop(makeString(noType)
       .length + 1)).length + 2 + 4)
     val groupedPixels = split('\n')(pixels).flatMap(split(' '))
       .map(_.foldRight(Nil: List[Char])((c, acc) => c :: acc).mkString).grouped(3).toList
-    //    println(groupedPixels)
 
     val pixelList = groupedPixels.map(p => makePixel(p))
     pixelList.grouped(lungime).toList
@@ -43,9 +40,8 @@ object Solution {
   }
 
   def toStringPPM(image: Image): List[Char] = {
-    ("P3\n" + image.head.length + ' ' + image.length + '\n' + "255\n" + image.flatten
-      .foldRight("")((c, acc) => (c.red.toString + ' ' + c.green.toString + ' ' + c.blue
-        .toString + '\n') + acc).toString).toList
+    ("P3\n" + image.head.length + ' ' + image.length + "\n255\n" + image.flatten.map(c =>
+      c.red.toString + ' ' + c.green.toString + ' ' + c.blue.toString + '\n').mkString).toList
   }
 
   // ex 1
@@ -102,7 +98,6 @@ object Solution {
 
     suma.map(x => x.map(y => if (y < threshold) Pixel(0, 0, 0) else Pixel(255, 255, 255)))
 
-
   }
 
 
@@ -111,9 +106,28 @@ object Solution {
     mats.map(m => m.map(l => l.zip(kernel).map(x => x._1.zip(x._2)
       .foldRight(0: Double)((y, acc) => y._2 * y._1 + acc))
       .foldRight(0: Double)((z, acc) => z + acc)))
-
   }
 
   // ex 5
-  def moduloPascal(m: Integer, funct: Integer => Pixel, size: Integer): Image = ???
+  //Combinari de n luate cate k: n!/(k!(n-k)!)
+  def moduloPascal(m: Integer, funct: Integer => Pixel, size: Integer): Image = {
+    val firstLine = 1 :: List.fill(size - 1)(-1)
+
+    def generateLines(previousLine: List[Int], acc: Int): List[List[Int]] = {
+      if (acc == size - 1) Nil
+      else {
+        val currentLine = 1 :: previousLine.zip(previousLine.tail).map(x => {
+          if (x._1 == -1 && x._2 == -1) -1
+          else if (x._1 == -1) x._2
+          else if (x._2 == -1) x._1
+          else (x._1 + x._2) % m
+        })
+        currentLine :: generateLines(currentLine, acc + 1)
+      }
+    }
+
+    val pascalTriangle = firstLine :: generateLines(firstLine, 0)
+    pascalTriangle.map(l => l.map(i => funct(i)))
+
+  }
 }

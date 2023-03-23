@@ -36,3 +36,5 @@ m.zip(k).map(x => x._1.zip(x._2))
   .foldRight(0)((x, acc) => x.foldRight(0)((y, acc) => y._1 * y._2 + acc) + acc)
 
 k.zip(k).map(k=>k._1.zip(k._2)).map(p => p.foldRight(Nil:List[Int])((x,acc) => x._1 + x._2 :: acc))
+
+List(1,2).zip(List(1))
