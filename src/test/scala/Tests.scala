@@ -85,10 +85,7 @@ class Tests extends munit.FunSuite {
 
   test("Edge Detection Teapot (20p)") {
     val input = Solution.fromStringPPM(Util.readEntire("input/Teapot.ppm").toList)
-    println("ceva")
     val result = Solution.toStringPPM(Solution.edgeDetection(input, 0.3))
-//    println(result)
-      val r = Solution.toStringPPM(Solution.edgeDetection(input, 0.3))
     if (DEBUG) Util.print(result.mkString, "teapot.ppm")
     val verification = Util.verifyResult(result.mkString, "teapot.ppm")
     assert(verification._1, verification._2)

@@ -91,28 +91,27 @@ object Solution {
   )
 
   def edgeDetection(image: Image, threshold: Double): Image = {
-    val gray = image.map(l => l.map(p => toGrayScale(p)))
+    val gray = image.map(p => p.map(q => toGrayScale(q)))
 
     val blur = applyConvolution(gray, gaussianBlurKernel)
 
     val Mx = applyConvolution(blur, Gx)
     val My = applyConvolution(blur, Gy)
 
-    val img = Mx.zip(My).map(k => k._1.zip(k._2))
-      .map(p => p.foldRight(Nil: List[Double])((x, acc) => x._1.abs + x._2.abs :: acc))
+    val suma = Mx.zip(My).map(x => x._1.zip(x._2)).map(y => y.map(z => z._1.abs + z._2.abs))
 
-    img.map(p => p.map(q => if(q <= threshold) Pixel(0,0,0) else Pixel(255,255,2555)))
+    suma.map(x => x.map(y => if (y < threshold) Pixel(0, 0, 0) else Pixel(255, 255, 255)))
+
 
   }
 
-  // convolutie: fac perechi cu zip, inmultesc perechile si le adun
-  //GrayScaleImage
+
   def applyConvolution(image: GrayscaleImage, kernel: GrayscaleImage): GrayscaleImage = {
     val mats = getNeighbors(image, (kernel.length - 1) / 2)
     mats.map(m => m.map(l => l.zip(kernel).map(x => x._1.zip(x._2)
-      .map(y=>y._1*y._2).sum).sum))
-//      .foldRight(0: Double)((y, acc) => y._2 * y._1 + acc))
-//      .foldRight(0: Double)((z, acc) => z + acc)))
+      .foldRight(0: Double)((y, acc) => y._2 * y._1 + acc))
+      .foldRight(0: Double)((z, acc) => z + acc)))
+
   }
 
   // ex 5
