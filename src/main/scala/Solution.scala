@@ -1,4 +1,5 @@
 import util.Pixel
+import util.Util.{getNeighbors, toGrayScale}
 
 // Online viewer: https://0xc0de.fr/webppm/
 object Solution {
@@ -18,13 +19,7 @@ object Solution {
       .map(_.foldRight(Nil: List[Char])((c, acc) => c :: acc).mkString).grouped(3).toList
     //    println(groupedPixels)
 
-    def loop(l: List[List[String]], acc: Int): List[Pixel] = {
-      if (acc == 0) Nil
-      else makePixel(l.head) :: loop(l.tail, acc - 1)
-    }
-
-    val pixelList = loop(groupedPixels, groupedPixels.length)
-    //    println(pixelList.grouped(lungime).toList)
+    val pixelList = groupedPixels.map(p => makePixel(p))
     pixelList.grouped(lungime).toList
   }
 
@@ -50,7 +45,7 @@ object Solution {
   def toStringPPM(image: Image): List[Char] = {
     ("P3\n" + image.head.length + ' ' + image.length + '\n' + "255\n" + image.flatten
       .foldRight("")((c, acc) => (c.red.toString + ' ' + c.green.toString + ' ' + c.blue
-        .toString +'\n') +acc).toString).toList
+        .toString + '\n') + acc).toString).toList
   }
 
   // ex 1
@@ -95,10 +90,30 @@ object Solution {
     List(-1, -2, -1)
   )
 
-  def edgeDetection(image: Image, threshold: Double): Image = ???
+  def edgeDetection(image: Image, threshold: Double): Image = {
+    val gray = image.map(l => l.map(p => toGrayScale(p)))
 
-// convolutie: fac perechi cu zip, inmultesc perechile si le adun
-  def applyConvolution(image: GrayscaleImage, kernel: GrayscaleImage): GrayscaleImage = ???
+    val blur = applyConvolution(gray, gaussianBlurKernel)
+
+    val Mx = applyConvolution(blur, Gx)
+    val My = applyConvolution(blur, Gy)
+
+    val img = Mx.zip(My).map(k => k._1.zip(k._2))
+      .map(p => p.foldRight(Nil: List[Double])((x, acc) => x._1.abs + x._2.abs :: acc))
+
+    img.map(p => p.map(q => if(q <= threshold) Pixel(0,0,0) else Pixel(255,255,2555)))
+
+  }
+
+  // convolutie: fac perechi cu zip, inmultesc perechile si le adun
+  //GrayScaleImage
+  def applyConvolution(image: GrayscaleImage, kernel: GrayscaleImage): GrayscaleImage = {
+    val mats = getNeighbors(image, (kernel.length - 1) / 2)
+    mats.map(m => m.map(l => l.zip(kernel).map(x => x._1.zip(x._2)
+      .map(y=>y._1*y._2).sum).sum))
+//      .foldRight(0: Double)((y, acc) => y._2 * y._1 + acc))
+//      .foldRight(0: Double)((z, acc) => z + acc)))
+  }
 
   // ex 5
   def moduloPascal(m: Integer, funct: Integer => Pixel, size: Integer): Image = ???
